@@ -1,0 +1,21 @@
+.btnAdd{
+  margin-top: 3rem;
+  width: 6rem;
+  border-radius: 5%;
+    color: white;
+    background: #008060 !important;
+    cursor: pointer;
+    font-weight: 700;
+    border: none;
+    padding: 1rem
+  }
+  .form_group{
+    // display: flex;
+    border: 1px solid green;
+    height: 35px;
+    position: relative;
+    margin-top: 3rem;
+  }
+  .inputTask{
+    width: 100%;
+  }
