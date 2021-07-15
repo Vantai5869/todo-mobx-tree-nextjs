@@ -1,19 +1,9 @@
-.headList{
+.topList{
   display: flex;
+  justify-content: space-between;
+  margin-bottom: 3rem;
 }
-.tdId{
-  flex: 1;
-  text-align: center;
- }
- .tdContent{
-   flex: 2.5;
- }
- .tdCheck{
-   flex: 1;
-   text-align: center;
- }
- .tdAction{
-   flex:2;
-   text-align: center;
- 
- }
+.btnGroupAction{
+  display: flex;
+  justify-content: space-between;
+}

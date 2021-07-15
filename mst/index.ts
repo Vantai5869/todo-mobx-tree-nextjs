@@ -5,6 +5,7 @@ import { types, Instance, applySnapshot } from "mobx-state-tree";
 const TaskItemModel = types
   .model("TaskItem", {
     id: types.string,
+    title: types.string,
     content: types.string,
     isDone: types.boolean
   })
@@ -26,6 +27,7 @@ const TodoModel = types
     fetchingTodo: async () => {
       try {
         let fetch = await axiosInstance().get('tasks')
+        console.log(fetch)
         applySnapshot(self, {
           ...self,
           todos: fetch.data.tasks

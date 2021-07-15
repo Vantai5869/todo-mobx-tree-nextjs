@@ -6,29 +6,36 @@ import { v4 as uuidv4 } from 'uuid';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axiosInstance from '../../helpers/axiosInstance';
-import styles from './taskForm.module.scss';
+import styles from './editForm.module.scss';
+import { Task } from 'mst';
 
-const TaskForm: FC<{}> = () => {
-    const [taskTitle, setTaskTitle] = useState('');
-    const [taskContent, setTaskContent] = useState('');
-    const [taskDone, setTaskDone] = useState(false);
+type PropType = {
+    task: Task
+}
 
-    function addTask() {
+const EditForm: FC<PropType> = ({ task }) => {
+    const [taskTitle, setTaskTitle] = useState(task.title);
+    const [taskContent, setTaskContent] = useState(task.content);
+    const [taskDone, setTaskDone] = useState(task.isDone);
+
+    async function editTask() {
         if (taskTitle !== '' && taskContent != '') {
-            let task = { id: uuidv4(), title: taskTitle, content: taskContent, isDone: taskDone };
-            setTaskTitle('');
-            setTaskContent('');
-            setTaskDone(false);
             try {
-                axiosInstance().post('tasks', task)
+                let res = await axiosInstance().put('tasks', { id: task.id, title: taskTitle, content: taskContent, isDone: taskDone });
+                if (res.data.success === true) {
+                    toast.success('Edit task success!', { position: 'bottom-right' })
+                }
+                else {
+                    alert('Sửa task không thành công!');
+                };
             } catch (error) {
                 console.log(error)
             }
+
         }
         else {
             alert('Chưa điền đủ thông tin các trường!');
         }
-        toast.success("Add task success!", { position: 'bottom-right' })
     };
 
     function onChangeTitle(data: string) {
@@ -53,9 +60,9 @@ const TaskForm: FC<{}> = () => {
                         </a>
                     </Link>
 
-                    <Button primary onClick={addTask}> Add Todo</Button>
+                    <Button primary onClick={editTask}> Save</Button>
                 </div>
-                <DisplayText size="small" >Create todo</DisplayText>
+                <DisplayText size="small" >Edit Todo</DisplayText>
                 <TextField
                     value={taskTitle}
                     label='Tiêu đề'
@@ -83,4 +90,4 @@ const TaskForm: FC<{}> = () => {
 }
 
 
-export default TaskForm
+export default EditForm

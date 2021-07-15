@@ -5,6 +5,7 @@ import { Task } from "mst";
 import { useState } from "react";
 import axiosInstance from '../../helpers/axiosInstance';
 import * as Config from './../../constants/Config';
+import EditForm from "components/editForm/EditForm";
 
 const Edit: React.FC<{ task: Task }> = ({ task }) => {
     const [taskValue, setTaskValue] = useState(task.content);
@@ -19,30 +20,33 @@ const Edit: React.FC<{ task: Task }> = ({ task }) => {
     }
 
     return (
-        <Page>
-            <Card>
-                <Button url='/'> Back </Button>
-                <div className='editForm'>
-                    <TextField
-                        label=''
-                        value={taskValue}
-                        onChange={onChange}
-                        id={task.id}
-                    />
-                    <div className="btnSubmit">
-                        <Button
-                            primary
-                            onClick={() => editItem(task.id)}
-                        >
-                            Edit
-                        </Button>
-                    </div>
+        <div>
+            <EditForm task={task} />
+        </div>
+        // <Page>
+        //     <Card>
+        //         <Button url='/'> Back </Button>
+        //         <div className='editForm'>
+        //             <TextField
+        //                 label=''
+        //                 value={taskValue}
+        //                 onChange={onChange}
+        //                 id={task.id}
+        //             />
+        //             <div className="btnSubmit">
+        //                 <Button
+        //                     primary
+        //                     onClick={() => editItem(task.id)}
+        //                 >
+        //                     Edit
+        //                 </Button>
+        //             </div>
 
 
-                </div>
-            </Card>
-            <ToastContainer />
-        </Page>
+        //         </div>
+        //     </Card>
+        //     <ToastContainer />
+        // </Page>
     );
 }
 
