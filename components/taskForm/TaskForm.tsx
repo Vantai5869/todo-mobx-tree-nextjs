@@ -1,34 +1,41 @@
-import { Button, Card, Icon, Page, TextField, Checkbox, DisplayText } from '@shopify/polaris';
+import { Button, Card, Checkbox, DisplayText, Icon, Page, TextField } from '@shopify/polaris';
 import { ArrowLeftMinor } from '@shopify/polaris-icons';
-import React, { FC, useState } from 'react';
+import { observer } from 'mobx-react';
+import { useStore } from 'mst/setup';
 import Link from 'next/link';
-import { v4 as uuidv4 } from 'uuid';
-import { ToastContainer, toast } from 'react-toastify';
+import React, { FC, useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { v4 as uuidv4 } from 'uuid';
 import axiosInstance from '../../helpers/axiosInstance';
 import styles from './taskForm.module.scss';
 
 const TaskForm: FC<{}> = () => {
+    const {newTask} = useStore()
     const [taskTitle, setTaskTitle] = useState('');
     const [taskContent, setTaskContent] = useState('');
     const [taskDone, setTaskDone] = useState(false);
 
-    function addTask() {
+   async function addTask() {
         if (taskTitle !== '' && taskContent != '') {
-            let task = { id: uuidv4(), title: taskTitle, content: taskContent, isDone: taskDone };
+            const task = { id: uuidv4(), title: taskTitle, content: taskContent, isDone: taskDone };
             setTaskTitle('');
             setTaskContent('');
             setTaskDone(false);
             try {
-                axiosInstance().post('tasks', task)
+                let res = await axiosInstance().post('tasks', task)
+                if(res.status===201){
+                    newTask(task)
+                    toast.success("Add task success!", { position: 'bottom-right' })
+                }
             } catch (error) {
+                toast.error("Error!", { position: 'bottom-right' })
                 console.log(error)
             }
         }
         else {
             alert('Chưa điền đủ thông tin các trường!');
         }
-        toast.success("Add task success!", { position: 'bottom-right' })
     };
 
     function onChangeTitle(data: string) {
@@ -83,4 +90,4 @@ const TaskForm: FC<{}> = () => {
 }
 
 
-export default TaskForm
+export default observer(TaskForm) 

@@ -1,15 +1,17 @@
-import React, { FC, useCallback, useEffect, useState } from 'react';
-import { Button, TextContainer, Modal } from '@shopify/polaris';
-import { inject, observer } from 'mobx-react';
-import { Task, Todo } from 'mst';
+import { Modal, TextContainer } from '@shopify/polaris';
 import axiosInstance from 'helpers/axiosInstance';
+import { observer } from 'mobx-react';
+import { Task } from 'mst';
+import { useStore } from 'mst/setup';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 
 type TodoProp = {
-    todo: Task,
-    store: Todo
+    todo?: Task,
+    show?: Boolean
 }
 
-const ModalDelete: FC<TodoProp> = ({ todo, store }) => {
+const ModalDelete: FC<TodoProp> = ({ todo, show }) => {
+    const { deleteTodo } = useStore()
     const [active, setActive] = useState(false);
     const [finishDone, setFinishDone] = useState(true)
     const handleChange = useCallback(() => setActive(!active), [active]);
@@ -19,14 +21,14 @@ const ModalDelete: FC<TodoProp> = ({ todo, store }) => {
             handleChange()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [todo])
+    }, [show])
 
     async function handleConfirm() {
         setFinishDone(false)
         try {
             let res = await axiosInstance().delete(`tasks/${todo.id}`)
-            if (res.data.success === true) {
-                store.deleteTodo(todo.id)
+            if (res.status === 200) {
+                deleteTodo(todo.id)
                 setFinishDone(true)
                 handleChange()
             }
@@ -69,6 +71,4 @@ const ModalDelete: FC<TodoProp> = ({ todo, store }) => {
         </div>
     );
 }
-export default inject('store')(
-    observer(ModalDelete)
-);
+export default observer(ModalDelete)

@@ -1,6 +1,12 @@
 import axiosInstance from "helpers/axiosInstance";
-import { types, Instance, applySnapshot } from "mobx-state-tree";
+import { cast, flow, Instance, types } from "mobx-state-tree";
 
+type TTask={
+  id: string,
+  title: string,
+  content: string,
+  isDone: boolean
+}
 
 const TaskItemModel = types
   .model("TaskItem", {
@@ -10,11 +16,12 @@ const TaskItemModel = types
     isDone: types.boolean
   })
   .actions(self => ({
-    editTask(newName: string) {
-      self.content = newName
+    updateTask(title: string, content: string) {
+      self.title = title;
+      self.content = content;
     },
     updateDoneTask() {
-      self.isDone = !self.isDone
+      self.isDone = !self.isDone;
     }
   }));
 
@@ -24,38 +31,40 @@ const TodoModel = types
     todos: types.array(TaskItemModel),
   })
   .actions(self => ({
-    fetchingTodo: async () => {
+    fetchingTodo: flow(function* () {
       try {
-        let fetch = await axiosInstance().get('tasks')
-        console.log(fetch)
-        applySnapshot(self, {
-          ...self,
-          todos: fetch.data.tasks
-        });
-
-      } catch (err) {
-
+        const response: Task[] = yield axiosInstance().get('tasks')
+          .then((value) => value.data);
+        self.todos = cast(response);
+      } catch (error) {
+        console.log(error)
       }
-    },
 
-    newTask(task: Task) {
+    }),
+
+    newTask(task: TTask) {
       self.todos.push(TaskItemModel.create(task))
     },
 
     deleteTodo: (todoId: string) => {
-      applySnapshot(self, {
-        ...self,
-        todos: self.todos.filter((todo: Task) => todo.id !== todoId)
-      });
+      let index= self.todos.findIndex(item=> item.id ===todoId)
+      self.todos.splice(index,1);
     },
 
     cloneTodo: (todo: Task) => {
-      applySnapshot(self, {
-        ...self,
-        todos: [...self.todos, todo]
-      });
+      self.todos.push(todo)
     },
 
+    editTodo:(todo:TTask)=>{
+      let index= self.todos.findIndex(item=> item.id ===todo.id)
+      self.todos[index] = cast(todo)
+    }
+
+  }))
+  .views(self => ({
+    get total() {
+      return self.todos.length
+    },
   }))
 
 export { TodoModel };

@@ -1,29 +1,33 @@
-import { Button, Card, Icon, Page, TextField, Checkbox, DisplayText } from '@shopify/polaris';
+import { Button, Card, Checkbox, DisplayText, Icon, Page, TextField } from '@shopify/polaris';
 import { ArrowLeftMinor } from '@shopify/polaris-icons';
-import React, { FC, useState } from 'react';
+import { Task } from 'mst';
+import { observer } from 'mobx-react';
 import Link from 'next/link';
-import { v4 as uuidv4 } from 'uuid';
-import { ToastContainer, toast } from 'react-toastify';
+import React, { FC, useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axiosInstance from '../../helpers/axiosInstance';
 import styles from './editForm.module.scss';
-import { Task } from 'mst';
+import { useStore } from 'mst/setup';
 
 type PropType = {
     task: Task
 }
 
 const EditForm: FC<PropType> = ({ task }) => {
-    const [taskTitle, setTaskTitle] = useState(task.title);
-    const [taskContent, setTaskContent] = useState(task.content);
-    const [taskDone, setTaskDone] = useState(task.isDone);
+    const {editTodo}= useStore()
+    const [taskTitle, setTaskTitle] = useState(task?.title);
+    const [taskContent, setTaskContent] = useState(task?.content);
+    const [taskDone, setTaskDone] = useState(task?.isDone);
 
-    async function editTask() {
+    async function handleEditTask() {
         if (taskTitle !== '' && taskContent != '') {
             try {
-                let res = await axiosInstance().put('tasks', { id: task.id, title: taskTitle, content: taskContent, isDone: taskDone });
-                if (res.data.success === true) {
+                const todoUpdate ={ id: task.id, title: taskTitle, content: taskContent, isDone: taskDone };
+                let res = await axiosInstance().put('tasks', todoUpdate);
+                if (res.status === 200) {
                     toast.success('Edit task success!', { position: 'bottom-right' })
+                    editTodo(todoUpdate)
                 }
                 else {
                     alert('Sửa task không thành công!');
@@ -60,7 +64,7 @@ const EditForm: FC<PropType> = ({ task }) => {
                         </a>
                     </Link>
 
-                    <Button primary onClick={editTask}> Save</Button>
+                    <Button primary onClick={handleEditTask}> Save</Button>
                 </div>
                 <DisplayText size="small" >Edit Todo</DisplayText>
                 <TextField
@@ -90,4 +94,4 @@ const EditForm: FC<PropType> = ({ task }) => {
 }
 
 
-export default EditForm
+export default observer(EditForm)
